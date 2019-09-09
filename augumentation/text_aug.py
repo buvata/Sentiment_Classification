@@ -6,6 +6,7 @@ random.seed(1)
 
 word_sentiment = [ "thích", " không thích", " ko thích", "ko", "khong" ]
 
+
 def get_only_chars(line):
 
     clean_line = ""

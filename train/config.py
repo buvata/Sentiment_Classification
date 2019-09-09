@@ -1,9 +1,9 @@
 data={
-    'path' : "../data" ,
+    'path' : "../data/data_model/" ,
     'format' : "csv" ,
     'train' : 'data_train.csv' ,
     'validate' : 'data_validate.csv' ,
-    'test' : '../data/data_test.csv',
+    'test' : '../data/data_model/data_test.csv',
     'batchsize' : 32
 }
 
@@ -26,7 +26,28 @@ lstm_char_word = {
     'dropout_cnn': 0.5,
     'fix_length_char': 6,
     'resultsdfpath' : "../model_results/result.p",
+    'modelfnamepath' : "../model_results/",
     'modelfname' : " ",
-    'save_device' : 'cpu'  # or 'cuda' 
+    'save_device' : 'cpu'  # or 'cuda' , 'cpu'
+}
+
+cnn_word = {
+    'cnn_filter_num': 100,
+    'window_size': [3,4,5],
+    'embedding_dim' : 100, 
+    'output_dim' : 1, 
+}
+
+model_train = {
+    'learning_rate': 1e-4,
+    'num_epochs' : 2,
+    'dropout' : 0.5,
+    'save_mode' : True ,
+    'save_device' :'cpu',
+    'resultsdfpath' : "../model_results/result.p",
+    'modelfnamepath' : "../model_results/",
+    'modelfname' : " ",
+    'batchsize' : 32,
+    'mode' : 'lstm_word_char'   # 'lstm_word_char' , 'rnn_word' , 'cnn_word_char'
 }
 

@@ -58,22 +58,6 @@ traindl, valdl = data.BucketIterator.splits(datasets = (trainds, valds), # train
                                             repeat = False)
 
 
-class BatchGenerator:
-    def __init__(self, dl, x_field, y_field):
-        self.dl, self.x_field, self.y_field = dl, x_field, y_field
-        
-    def __len__(self):
-        return len(self.dl)
-    
-    def __iter__(self):
-        for batch in self.dl:
-            X = getattr(batch, self.x_field)
-            y = getattr(batch, self.y_field)
-            yield (X,y)
-            
-#train_batch_it = BatchGenerator(traindl, 'combine_comment', 'label')
-#val_batch_it = BatchGenerator(valdl, 'combine_comment', 'label')
-
 txt_field.build_vocab(trainds, max_size=10000)
 label_field.build_vocab(trainds)
 

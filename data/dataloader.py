@@ -144,6 +144,3 @@ def get_dataloader_word_char(cf):
 
 
 
-def build_vocab(data_field, data_iter):
-    vocab = data_field.build_vocab(data_iter)
-    return vocab 

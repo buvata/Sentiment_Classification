@@ -14,8 +14,8 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt 
 import config as cf 
 from utils import * 
-from CNN_based_char import CharCNN
-from highway import Highway
+from sub_layer.cnn_based_char import CharCNN
+from sub_layer.highway import Highway
 
 
 class LSTMWordChar(nn.Module):
@@ -26,9 +26,8 @@ class LSTMWordChar(nn.Module):
         self.word_embedding_dim = cf.lstm_char_word['word_embedding_dim']
         self.char_embedding_dim = cf.lstm_char_word['char_embedding_dim']
         self.hidden_size_word = cf.lstm_char_word['hidden_size_word']
-        self.vocab_word = vocab_word
-        self.vocab_char = vocab_char
         self.num_classes = cf.lstm_char_word['num_classes']
+
         self.vocab_word = vocab_word
         self.vocab_char = vocab_char
         self.word_embedding_layer = nn.Embedding(len(vocab_word), self.word_embedding_dim)
@@ -149,7 +148,15 @@ class LSTMWordChar(nn.Module):
         logits = self.label(attn_output)
       
         return logits
-    
+
+
+    def loss(self, batch):
+        logits_predict = self.compute_forward(batch)
+        predict_value = torch.max(logits_predict, 1)[1]
+        target = batch.label
+        loss = F.cross_entropy(logits_predict, target)
+        return loss
+
 
     def get_accuracy(self, data_iter):
         correct, total = 0, 0

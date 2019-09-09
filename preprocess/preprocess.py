@@ -7,7 +7,7 @@ import emoji
 import unidecode 
 import unicodedata
 from sklearn.model_selection import train_test_split
-from preprocess_function import *
+from text_handler import *
 
 regex_train = "train_[0-9]*[\s\S]*?\"\n[0|1]"
 regex_test = "test_[0-9]*[\s\S]*?\"\n"
@@ -107,7 +107,6 @@ def add_feature(df):
     df['comment'] = df['comment'].str.lower()
     df['comment'] = df['comment'].apply(lambda s: remove_punctuation(s))
     df['comment'] = df['comment'].apply(lambda s: remove_multiple_space(s))
-    df['comment'] = df['comment'].apply(lambda s: normalize_text_to_nfc_standard(s))
     df['comment_w_tone'] = df['comment'].apply(lambda s: remove_tone(s))
     df['comment_w_tone'] = df['comment_w_tone'].apply(lambda s: remove_null_element(s))
     df['combine_comment'] = df['comment'] + " " +df['comment_w_tone'].astype(str)

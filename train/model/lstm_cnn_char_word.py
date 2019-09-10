@@ -41,9 +41,9 @@ class LSTMCNNWordChar(nn.Module):
             self.char_embedding_layer = nn.Embedding(len(vocab_char), self.char_embedding_dim)
 
             self.layer_char_cnn = CNNFeatureExtract(self.char_embedding_dim,
-                                              self.char_cnn_filter_num,
-                                              self.char_window_size,
-                                              self.dropout_cnn)
+                                                    self.char_cnn_filter_num,
+                                                    self.char_window_size,
+                                                    self.dropout_cnn)
                 
         each_number_output_filter = self.char_cnn_filter_num * len(self.char_window_size) 
         self.hidden_size_char = each_number_output_filter
@@ -55,14 +55,13 @@ class LSTMCNNWordChar(nn.Module):
 
             self.word_embedding_layer.weight.data.copy_(vocab_word.vectors)
             self.word_embedding_layer.requires_grad = False
-        
 
         # lstm get input shape (seq_len, batch_size, input_dim)
         self.layer_lstm_word = nn.LSTM(self.word_embedding_dim,
-                                    self.hidden_size_word,
-                                   num_layers=cf.lstm_cnn_char_word['num_layer_lstm_word'],
-                                   batch_first=True,
-                                   bidirectional=False)   
+                                        self.hidden_size_word,
+                                        num_layers=cf.lstm_cnn_char_word['num_layer_lstm_word'],
+                                        batch_first=True,
+                                        bidirectional=False)
         
         self.reduce_size = cf.lstm_cnn_char_word['reduce_size']
         if self.reduce_size:
@@ -71,14 +70,12 @@ class LSTMCNNWordChar(nn.Module):
         else:
             self.label = nn.Linear(self.hidden_size_word + self.hidden_size_char, self.num_classes) 
 
-
     def attention_net(self, network_output, final_state):
         hidden = final_state.squeeze(0)
         attn_weights = torch.bmm(network_output, hidden.unsqueeze(2)).squeeze(2)
         soft_attn_weights = F.softmax(attn_weights, 1)
         new_hidden_state = torch.bmm(network_output.transpose(1, 2), soft_attn_weights.unsqueeze(2)).squeeze(2)
         return new_hidden_state
-    
 
     def compute_forward(self, batch): 
         inputs_word_emb = self.word_embedding_layer(batch.word)
@@ -94,13 +91,11 @@ class LSTMCNNWordChar(nn.Module):
                 ft =self.fc(ft)
         return ft 
 
-    
     def forward(self, batch):
         with torch.no_grad():
             output_ft = self.compute_forward(batch)
             output_predictions = self.label(output_ft)
         return output_predictions
-
 
     def loss(self, batch):
         labels = batch.label
@@ -118,11 +113,3 @@ class LSTMCNNWordChar(nn.Module):
             correct += pred.eq(batch.label.view_as(pred)).sum().item()
             total += batch.label.shape[0]
         return correct / total
-
-
-
-    
-
-    
-
-    

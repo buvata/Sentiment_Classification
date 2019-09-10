@@ -1,8 +1,8 @@
 from __future__ import absolute_import
-
 import os 
 import sys 
-import config as cf  
+import config as cf
+import torch
 import torch.nn as nn 
 sys.path.insert(0,"../")
 from evaluate.evaluate import *
@@ -53,7 +53,7 @@ def train_network(cf, model, train, valid):
 
             if cf.model_train == 'lstm_word_char':
                 if cf.model_train['save_model']:
-                    cf.train_mode['modelfname'] = "model_cf" + \
+                    cf.train_mode['modelfname'] = "lstm_word_char" + \
                     "_".join(["_use_cnn", str(cf.lstm_char_word['use_char_cnn'])]) + \
                     "_".join(["_w_emb", str(cf.lstm_char_word['word_embedding_dim'])]) + \
                     "_".join(["_lr", str(cf.model_train['learning_rate'])]) + \
@@ -62,9 +62,24 @@ def train_network(cf, model, train, valid):
                     ".pt"
                     model.save(cf.model_train['modelfnamepath'] + cf.model_train['modelfname'])
 
+            if cf.model_train == 'lstm_cnn_word_char':
+                if cf.model_train['save_model']:
+                    cf.train_mode['modelfname'] = "lstm_cnn_word_char" + \
+                    "_".join(["_use_cnn", str(cf.lstm_cnn_char_word['use_char_cnn'])]) + \
+                    "_".join(["_w_emb", str(cf.lstm_cnn_char_word['word_embedding_dim'])]) + \
+                    "_".join(["_hidden_size_w", str(cf.lstm_cnn_char_word['hidden_size_word'])]) + \
+                    "_".join(["_c_emb", str(cf.lstm_cnn_char_word['char_embedding_dim'])]) + \
+                    "_".join(["_n_filter", str(cf.lstm_cnn_char_word['char_cnn_number_filter'])]) + \
+                    "_".join(["window_size", str(cf.lstm_cnn_char_word['char_window_size'])]) + \
+                    "_".join(["_lr", str(cf.model_train['learning_rate'])]) + \
+                    "_".join(["_bs", str(cf.model_train['batch_size'])]) + \
+                    ".pt"
+
+                    model.save(cf.model_train['modelfnamepath'] + cf.model_train['modelfname'])
+
             if cf.model_train == 'cnn_word':
                 if cf.model_train['save_model']:
-                    cf.train_mode['modelfname'] = "model_cf" + \
+                    cf.train_mode['modelfname'] = "cnn_word" + \
                     "_".join(["_filter_num", str(cf.cnn_word['cnn_filter_num'])]) + \
                     "_".join(["_kernel_size", str(cf.cnn_word['window_size'])]) + \
                     "_".join(["_w_emb", str(cf.cnn_word['embedding_dim'])]) + \
@@ -94,7 +109,6 @@ def train_network(cf, model, train, valid):
 
 if __name__ == "__main__":
    
-    
     train_iter, vald_iter, trainds, valds, txt_field, char_field = get_dataloader_word_char(cf)
     vocab_word, vocab_char = load_vocab(cf)
     build_vocab(txt_field, trainds)

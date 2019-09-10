@@ -1,13 +1,9 @@
 import numpy as np
 import pandas as pd
-import math
 import os
-import argparse
 import torchtext
 import heapq
 import torch
-import time
-from torch.autograd import Variable
 import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F

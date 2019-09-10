@@ -143,4 +143,50 @@ def get_dataloader_word_char(cf):
     return train_iter, vald_iter, trainds, valds, txt_field, char_field
 
 
+def get_dataloader_cnn_word_char(cf):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    tokenize_word = lambda x: x.split(" ")
+
+    txt_field = data.Field(tokenize=tokenize_word, 
+                            init_token="<SOS>", 
+                            eos_token="<EOS>", 
+                            batch_first=True)
+
+    char_field = data.Field(tokenize=lambda x:x,
+                             init_token="<SOS>", 
+                             eos_token="<EOS>", 
+                             batch_first=True)
+
+    label_field = data.Field(sequential = False, 
+                        use_vocab = False,     
+                        is_target = True,      
+                        batch_first = True,
+                        unk_token = None,
+                    )
+
+    fields = [('id', None), 
+        ('comment', None),
+        ('label', label_field),
+        ('comment_w_tone', None),
+        (('word', 'char'), 
+        (txt_field, char_field))]
+
+    trainds, valds = data.TabularDataset.splits(path = cf.data['path'], 
+                                            format = cf.data['format'], 
+                                            train = cf.data['train'], 
+                                            validation = cf.data['validate'],
+                                            fields = fields, 
+                                            skip_header = True)
+
+    train_iter, vald_iter = data.BucketIterator.splits( datasets = (trainds, valds), # train  Tabulardataset
+                                                    batch_sizes = (cf.data['batchsize'],cf.data['batchsize']),  # batch size of train
+                                                    sort_key = lambda x : len(x.word),
+                                                    sort_within_batch = True,
+                                                    repeat = False,
+                                                    device = device)
+                                
+    return train_iter, vald_iter, trainds, valds , txt_field ,char_field 
+
+
+
 

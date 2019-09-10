@@ -23,20 +23,20 @@ class LSTMWordChar(nn.Module):
         
         super(LSTMWordChar, self).__init__()
 
-        self.word_embedding_dim = cf.lstm_char_word['word_embedding_dim']
-        self.char_embedding_dim = cf.lstm_char_word['char_embedding_dim']
-        self.hidden_size_word = cf.lstm_char_word['hidden_size_word']
         self.num_classes = cf.lstm_char_word['num_classes']
+        self.word_embedding_dim = cf.lstm_char_word['word_embedding_dim']
+        self.hidden_size_word = cf.lstm_char_word['hidden_size_word']
 
+        self.char_embedding_dim = cf.lstm_char_word['char_embedding_dim'] 
+        self.hidden_size_char = cf.lstm_char_word['hidden_size_char']   
+        
         self.vocab_word = vocab_word
         self.vocab_char = vocab_char
         self.word_embedding_layer = nn.Embedding(len(vocab_word), self.word_embedding_dim)
         self.char_embedding_layer = None
 
-        self.char_embedding_dim = cf.lstm_char_word['char_embedding_dim'] 
-        self.hidden_size_char = cf.lstm_char_word['hidden_size_char']   
-        
         self.use_highway_char = cf.lstm_char_word['use_highway_char']
+
         self.use_char_cnn = cf.lstm_char_word['use_char_cnn']
         if self.use_char_cnn:
             self.char_cnn_filter_num = cf.lstm_char_word['char_cnn_filter_num']

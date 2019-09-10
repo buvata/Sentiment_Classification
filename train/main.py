@@ -10,6 +10,7 @@ from utils import *
 from data.dataloader import *
 from model.lstm_char_word import LSTMWordChar
 from model.cnn_sent import CNN1dWord
+from model.lstm_cnn_char_word import LSTMCNNWordChar
 
 
 def train_network(cf, model, train, valid): 
@@ -93,21 +94,30 @@ def train_network(cf, model, train, valid):
 
 if __name__ == "__main__":
    
-    train_iter, vald_iter, trainds, valds, txt_field, char_field = get_dataloader_word_char(cf)
-    vocab_word, vocab_char = load_vocab(cf)
-   
+    train_cnn , vald_cnn , trainds, valds, txt_field, char_field = get_dataloader_cnn_word_char(cf)
+    # train_iter, vald_iter, trainds, valds, txt_field, char_field = get_dataloader_word_char(cf)
+    # vocab_word, vocab_char = load_vocab(cf)
+    build_vocab(txt_field, trainds)
+    build_vocab(char_field, trainds)
+
+    vocab_word = txt_field.vocab
+    vocab_char = char_field.vocab    
+
     vocab_size = len(vocab_word)
     pad_idx = vocab_word.stoi[txt_field.pad_token]
 
     if cf.model_train['mode'] == 'lstm_word_char': 
         model = LSTMWordChar(vocab_word, vocab_char, cf )
 
-    if cf.model_train['mode'] == 'cnn_word':
+    if cf.model_train['mode'] == 'cnn_word_char':
         model = CNN1dWord(cf, vocab_size, pad_idx)
+
+    if cf.model_train['mode'] == 'lstm_cnn_word_char' :
+        model = LSTMCNNWordChar(vocab_word, vocab_char, cf)
   
     train_mode = True
     if train_mode is True :
-        train_network(cf, model, train_iter, vald_iter ) 
+        train_network(cf, model, train_cnn, vald_cnn ) 
     else:
         model_test = load_model(cf, model, '../model_results/model_cf_use_cnn_True_w_emb_100_lr_0.0001_bs_32_hidden_size_w_16.pt')
         plot_confusion_matrix(model_test, cf) 

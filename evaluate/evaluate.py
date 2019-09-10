@@ -32,7 +32,6 @@ def get_input_processor_words(inputs, vocab_word, vocab_char=None):
     else:
         fields = [('word', inputs_word)]
 
- 
     if not isinstance(inputs, list):
         inputs = [inputs]
 
@@ -61,7 +60,7 @@ def predict_sentiment(model, cf, test_iters):
         preds = torch.sigmoid(preds)
 
         w_pred = preds.data.numpy()      # weight_predict 
-        y_pred = torch.max(preds,1)[1].numpy()  # return label 
+        y_pred = torch.max(preds, 1)[1].numpy()  # return label
        
         test_preds.append(y_pred)
         
@@ -70,7 +69,7 @@ def predict_sentiment(model, cf, test_iters):
     test_preds = [item for sublist in test_preds for item in sublist]
     test_weight_preds = [item for sublist in test_weight_preds for item in sublist]
 
-    return test_preds , test_weight_preds
+    return test_preds, test_weight_preds
 
 
 def error_predict(model, cf, test_iters):
@@ -111,19 +110,5 @@ def plot_confusion_matrix(model, cf):
     skplt.metrics.plot_confusion_matrix(
             y_test, 
             y_pred,
-            figsize=(6,6))
+            figsize=(6, 6))
     plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-  

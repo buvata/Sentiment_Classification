@@ -94,9 +94,9 @@ def train_network(cf, model, train, valid):
 
 if __name__ == "__main__":
    
-    train_cnn , vald_cnn , trainds, valds, txt_field, char_field = get_dataloader_cnn_word_char(cf)
-    # train_iter, vald_iter, trainds, valds, txt_field, char_field = get_dataloader_word_char(cf)
-    # vocab_word, vocab_char = load_vocab(cf)
+    
+    train_iter, vald_iter, trainds, valds, txt_field, char_field = get_dataloader_word_char(cf)
+    vocab_word, vocab_char = load_vocab(cf)
     build_vocab(txt_field, trainds)
     build_vocab(char_field, trainds)
 
@@ -113,7 +113,14 @@ if __name__ == "__main__":
         model = CNN1dWord(cf, vocab_size, pad_idx)
 
     if cf.model_train['mode'] == 'lstm_cnn_word_char' :
+        train_cnn , vald_cnn , trainds, valds, txt_field, char_field = get_dataloader_cnn_word_char(cf)
+        build_vocab(txt_field, trainds)
+        build_vocab(char_field, trainds)
+        vocab_word = txt_field.vocab
+        vocab_char = char_field.vocab   
+
         model = LSTMCNNWordChar(vocab_word, vocab_char, cf)
+
   
     train_mode = True
     if train_mode is True :

@@ -7,17 +7,12 @@ from torchtext import vocab
 from torchtext import data 
 import config as cf   
 
-
-def word_tokenize(x):
-    word_tokenize = lambda x: x.split(" ")
-    return word_tokenize
-
 def get_dataloader_word(cf):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     txt_field = data.Field(sequential=True, 
                         tokenize=lambda x:x.split(" "), 
-                        #include_lengths=True, 
+                        # include_lengths=True,
                         use_vocab=True)
 
     label_field = data.Field(sequential=False, 
@@ -25,7 +20,6 @@ def get_dataloader_word(cf):
                          is_target=True,      
                          batch_first=True,
                          unk_token=None)
-
 
     train_val_fields = [
         ('id', None),
@@ -185,8 +179,4 @@ def get_dataloader_cnn_word_char(cf):
                                                     repeat = False,
                                                     device = device)
                                 
-    return train_iter, vald_iter, trainds, valds , txt_field ,char_field 
-
-
-
-
+    return train_iter, vald_iter, trainds, valds , txt_field ,char_field

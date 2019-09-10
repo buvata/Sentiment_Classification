@@ -37,6 +37,3 @@ if __name__ == '__main__':
     x_test = torch.rand((2, 15, 64))
     cnn_layer = CNNFeatureExtract(64, 15)
     cnn_layer(x_test)
-
-
-

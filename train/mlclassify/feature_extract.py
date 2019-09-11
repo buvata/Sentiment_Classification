@@ -14,30 +14,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 
 
-class RemovePunct(BaseEstimator, TransformerMixin):
-    non_special_chars = re.compile('[^A-Za-z0-9 ]+')
-
-    def remove_punct(self, s):
-        return re.sub(self.non_special_chars, '', s)
-
-    def transform(self, x):
-        return [self.remove_punct(s) for s in x]
-
-    def fit(self, x, y=None):
-        return self
-
-
-class RemoveMutilSpaces(BaseEstimator, TransformerMixin):
-    def remove_consecutive_spaces(self, s):
-        return ' '.join(s.split())
-
-    def transform(self, x):
-        return [self.remove_consecutive_spaces(s) for s in x]
-
-    def fit(self, x, y=None):
-        return self
-
-
 class Lowercase(BaseEstimator, TransformerMixin):
     def transform(self, x):
         return [s.lower() for s in x]
@@ -105,54 +81,47 @@ class NumEmojiFeature(BaseEstimator, TransformerMixin):
         return self
 
 
-clf_word = Pipeline([
-        ('remove_spaces', RemoveMutilSpaces()),
-        ('features', FeatureUnion([
-            ('word_features_pipeline', Pipeline([
-                ('lowercase', Lowercase()),
-                ('word_features', FeatureUnion([
-                    ('with_tone', Pipeline([
-                        ('remove_punct', RemovePunct()),
-                        ('tf_idf_word', TfidfVectorizer(ngram_range=(1, 4), norm='l2', min_df=2))
-                    ]))
-                ], n_jobs=-1)),
-            ]))
-        ], n_jobs=-1)),
-        ('alg', SVC(kernel='linear', C=0.2175, class_weight=None, verbose=True))
+def extract_feature(train_data):
+    clf = Pipeline([
+            ('features', FeatureUnion([
+                ('custom_features_pipeline', Pipeline([
+                    ('custom_features', FeatureUnion([
+                        ('f01', NumWordsCharsFeature()),
+                        ('f02', NumUpperLetterFeature()),
+                        ('f03', NumLowerLetterFeature()),
+                        ('f04', NumEmojiFeature())
+                    ], n_jobs=-1)),
+                    ('scaler', StandardScaler(with_mean=False))
+                ])),
+                ('word_char_features_pipeline', Pipeline([
+                    ('lowercase', Lowercase()),
+                    ('word_char_features', FeatureUnion([
+                        ('with_tone', Pipeline([
+                            ('tf_idf_word', TfidfVectorizer(ngram_range=(1, 4), norm='l2', min_df=2))
+                        ])),
+                        ('with_tone_char', TfidfVectorizer(ngram_range=(1, 5), norm='l2', min_df=2, analyzer='char')),
+                        ('with_tone_char_wb', TfidfVectorizer(ngram_range=(1, 5), norm='l2', min_df=2, analyzer='char_wb')),
+                    ], n_jobs=-1))
+                ]))
+            ], n_jobs=-1)),
         ])
-
-
-clf_char = Pipeline([
-        ('remove_spaces', RemoveMutilSpaces()),
-        ('features', FeatureUnion([
-            ('char_features_pipeline', Pipeline([
-                ('lowercase', Lowercase()),
-                ('char_features', FeatureUnion([
-                    ('with_tone', Pipeline([
-                        ('remove_punct', RemovePunct()),
-                        ('tf_idf_char', TfidfVectorizer(ngram_range=(1, 6), norm='l2', min_df=2, analyzer='char')),
-                        ('tf_idf_char_wb', TfidfVectorizer(ngram_range=(1, 6), norm='l2', min_df=2, analyzer='char_wb'))
-                    ]))
-                ], n_jobs=-1)),
-            ]))
-        ], n_jobs=-1)),
-        ('alg', SVC(kernel='linear', C=1, class_weight=None, verbose=True))
-        ])
-
-
-pipeline = Pipeline([
-    ('vect', CountVectorizer()),
-    ('tfidf', TfidfTransformer()),
-    # ('clf', SVC(kernel='linear')),
-    ('clf', RandomForestClassifier())
-])
+    vectorizer = clf.fit_transform(train_data.comment)
+    return vectorizer
 
 
 def feature_importance(train_data, target):
     cv = CountVectorizer()
     cv.fit(train_data)
     vocab = cv.get_feature_names()
+
+    pipeline = Pipeline([
+        ('vect', CountVectorizer()),
+        ('tfidf', TfidfTransformer()),
+        # ('clf', SVC(kernel='linear')),
+        ('clf', RandomForestClassifier())
+    ])
     params = {'clf__n_estimators': (10, 100)}
+
     optimized_svm = GridSearchCV(pipeline,
                                  param_grid=params,
                                  cv=3,
@@ -185,18 +154,12 @@ def plot_feature_importance(feature_importance, list_vocabulary, n_feature_show=
     plt.show()
 
 
-def smv_classify(clf_word, clf_char, train_data, mode):
-    if mode == 'word':
-        clf_word.fit(train_data.comment, train_data.label)
-
-    if mode == "char":
-        clf_char.fit(train_data.comment, train_data.label)
-
 
 if __name__ == '__main__':
     data_train = pd.read_csv("../../data/data_model/data_train.csv")
-    train_data = data_train.comment
-    target = data_train.label
+    # train_data = data_train.comment
+    # target = data_train.label
 
-    feature_importances, vocab = feature_importance(train_data, target)
-    plot_feature_importance(feature_importances, vocab, n_feature_show=20)
+    # feature_importances, vocab = feature_importance(train_data, target)
+    # plot_feature_importance(feature_importances, vocab, n_feature_show=20)
+

@@ -66,9 +66,8 @@ def train(train_comments, y_train):
     return cv_df
 
 
-def stacking_model(y_train):
-    train = pd.read_csv(filename_train)
-    train_comments = train['combine_comment'].fillna("none").values
+def stacking_model(filename_train, filename_test):
+    train_comments, test_comments, y_train, y_test = load_data(filename_train, filename_test)
     X1_train, X1_test, y1_train, y1_test = train_test_split(train_comments, y_train, test_size=0.2, random_state=42)   
     
     # first 

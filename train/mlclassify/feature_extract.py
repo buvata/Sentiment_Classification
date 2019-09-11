@@ -34,14 +34,38 @@ class NumUpperLetterFeature(BaseEstimator, TransformerMixin):
     def fit(self, x, y=None):
         return self
 
-
-class NumLowerLetterFeature(BaseEstimator, TransformerMixin):
-    def count_upper(self, s):
-        n_uppers = sum(1 for c in s if c.islower())
-        return n_uppers / (1 + len(s))
+class NumUpperWordFeature(BaseEstimator, TransformerMixin):
+    def count_upper(self,s):
+        n_uppers = sum(1 for w in s.split() if w[0].isupper())
+        return n_uppers / (1 + len(s.split()))
 
     def transform(self, x):
         counts = [self.count_upper(s) for s in x]
+        return sp.csr_matrix(counts, dtype=np.float64).transpose()
+
+    def fit(self, x, y=None):
+        return self
+
+
+class NumLowerLetterFeature(BaseEstimator, TransformerMixin):
+    def count_lower(self, s):
+        n_lowers = sum(1 for c in s if c.islower())
+        return n_lowers / (1 + len(s))
+
+    def transform(self, x):
+        counts = [self.count_lower(s) for s in x]
+        return sp.csr_matrix(counts, dtype=np.float64).transpose()
+
+    def fit(self, x, y=None):
+        return self
+
+class NumLowerWordFeature(BaseEstimator, TransformerMixin):
+    def count_lower(self, s):
+        n_lowers = sum(1 for w in s.split() if w.islower())
+        return n_lowers / (1 + len(s.split()))
+
+    def transform(self, x):
+        counts = [self.count_lower(s) for s in x]
         return sp.csr_matrix(counts, dtype=np.float64).transpose()
 
     def fit(self, x, y=None):
@@ -88,8 +112,10 @@ def extract_feature(train_data):
                     ('custom_features', FeatureUnion([
                         ('f01', NumWordsCharsFeature()),
                         ('f02', NumUpperLetterFeature()),
-                        ('f03', NumLowerLetterFeature()),
-                        ('f04', NumEmojiFeature())
+                        ('f03', NumUpperWordFeature()),
+                        ('f04', NumLowerWordFeature()),
+                        ('f05', NumLowerLetterFeature()),
+                        ('f06', NumEmojiFeature())
                     ], n_jobs=-1)),
                     ('scaler', StandardScaler(with_mean=False))
                 ])),

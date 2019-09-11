@@ -188,7 +188,6 @@ def plot_feature_importance(feature_importance, list_vocabulary, n_feature_show=
 def smv_classify(clf_word, clf_char, train_data, mode):
     if mode == 'word':
         clf_word.fit(train_data.comment, train_data.label)
-        print(clf_word.named_steps['alg'].coef_)
 
     if mode == "char":
         clf_char.fit(train_data.comment, train_data.label)

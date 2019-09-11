@@ -88,7 +88,7 @@ class LSTMCNNWordChar(nn.Module):
             char_ft = self.layer_char_cnn(inputs_char_emb)      
             ft = torch.cat([word_ft, char_ft],-1)
             if self.reduce_size:
-                ft =self.fc(ft)
+                ft = self.fc(ft)
         return ft 
 
     def forward(self, batch):
